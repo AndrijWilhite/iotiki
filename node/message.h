@@ -9,6 +9,6 @@ class Message {
     private:
     public:
         string content;
-        Message(string message);
+        Message(char message[]);
         int broadcast();
 };
