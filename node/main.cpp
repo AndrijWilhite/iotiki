@@ -10,9 +10,7 @@
 #include "node.cpp"
 
 int main(int argc, const char * argv[]) {
-    string mac = "1234ABCD";
-    Node *node = new Node(mac);
-    string network_id = "hello";
-    node->joinNetworkById(network_id);
-    return 0;
+    Node *node = new Node();
+    node->joinFirstAvailableNetwork();
+    return 1;
 }

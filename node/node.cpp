@@ -6,7 +6,6 @@
  * and open the template in the editor.
  */
 #include "node.h"
-#include "message.cpp"
 #include <cassert>
 #include <iostream>
 #include <sys/types.h>
@@ -25,19 +24,9 @@
 #include <iostream>
 #include <cstdlib>
 
-Node::Node(string mac) {
-    this->mac = mac;
+Node::Node() {
+    this->mac = 0; //TODO get MAC
 };
-
-int main(int argc, const char * argv[]) {
-    string mac = "1234ABCD";
-    Node *node = new Node(mac);
-    string network_id = "hello";
-    node->joinNetworkById(network_id);
-    string message = "0011FFEE00";
-    node->createMessage(message);
-    return 1;
-}
 
 void Node::listen() {
     sockaddr_in si_me, si_other;
@@ -57,43 +46,60 @@ void Node::listen() {
 
     while(1) {
         char buf[10000];
-        unsigned slen=sizeof(sockaddr);
+        unsigned slen = sizeof(sockaddr);
         recvfrom(s, buf, sizeof(buf)-1, 0, (sockaddr *)&si_other, &slen);
         printf("received: %s\n", buf);
         this->receiveMessage(buf);
     }
 };
 
-/* Broadcasts a message to all clients on subnet */
-int Node::createMessage(string message) {
-    Message* msg = new Message(message);
-    msg->broadcast();
-    return 1;
+void Node::broadcast(Message message) {
+    message->encrypt(this->encrypt_key);
 };
 
-string Node::receiveMessage(string message) {
+/* Broadcasts a message to all clients on subnet */
+void Node::createMessage(string content) {
+    Message* message = new Message(message);
+    this->broadcast(message);
+};
+
+Node::Message Node::receiveMessage(char raw) {
+    Message message = new Message;
+    message->parse(raw, this->encrypt_key);
     return message;
 };
 
-int Node::propagate(string message) {
-    cout << "Propagating " << message << endl;
+void Node::propagate(Message message) {
+    cout << "Propagating " << message->content << endl;
     this->createMessage(message);
     return 1;
 };
-        
-/* Finds all available IOTiki networks on subnet */
-int Node::findAvailableNetworks() {
+
+/* Asks to join a specific IOTiki network by Identifier */
+int Node::attemptNetworkJoin(string network_id) {
+    std::cout << "Asking to join Network with Id " << network_id << "..." << endl;
     return 1;
 };
 
-/* Joins a specific IOTiki network by Identifier */
-int Node::joinNetworkById(string id) {
-    this->network_id = id;
-    std::cout << "Joining Network with Id " << id << "." << endl;
-    return 1;
+int joinNetwork(string network_id, string encrypt_key) {
+    this->network_id = network_id;
+    this->encrypt_key = encrypt_key;
+};
+
+/* Finds all available IOTiki networks on subnet */
+string Node::findAvailableNetworks() {
+    string networks[10] = {}; 
+    return networks;
 };
 
 /* Finds all available networks and joins the first one by Id */
 int Node::joinFirstAvailableNetwork() {
-    return 1;
+    std::cout << "Joining first available network..." << endl;
+    string networks[] = this->findAvailableNetworks();
+    if(networks[0]) {
+        this->attemptNetworkJoin(networks[0]);
+        return 1;
+    } else {
+        return 0;
+    }
 };

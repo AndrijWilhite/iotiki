@@ -5,29 +5,52 @@ class Node {
     private:
         string mac;
         string network_id;
+        string encrypt_key;
         string known_networks[300];
     public:
         /* Constructor for only MAC address */
-        Node(string mac);
+        Node();
+        ~Node();
         
         /* Binds a socket listener for all UDP broadcasts */
         void listen();
         
+        void broadcast(Message message);
+        
         /* Creates a new Message object and broadcasts it */
-        int createMessage(string message);
+        void createMessage(string content);
         
         /* */
-        string receiveMessage(string message);
+        Message receiveMessage(char raw);
         
         /* Propagates a received message*/
-        int propagate(string message);
+        void propagate(Message message);
         
         /* Finds all available IOTiki networks on Subnet */
-        int findAvailableNetworks();
+        string findAvailableNetworks();
         
-        /* Joins a specific IOTiki network by Identifier */
-        int joinNetworkById(string id);
+        /* Asks to join a specific IOTiki network by Identifier */
+        int attemptNetworkJoin(string network_id);
+        
+        /* Joins a network when it has gained permission and received key */
+        int joinNetwork(string network_id, string encrypt_key);
         
         /* Finds all available networks and joins the first one by Id */
         int joinFirstAvailableNetwork();
+        
+        struct Message {
+            string content;
+            Message parse(string raw, string encrypt_key) {
+                this->content = raw;
+                this->decrypt(encrypt_key);
+            };
+            
+            void encrypt(string encrypt_key) {
+                
+            };
+            
+            void decrypt(string encrypt_key) {
+                
+            };
+        };
 };

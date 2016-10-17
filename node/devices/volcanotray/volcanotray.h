@@ -13,6 +13,8 @@
 
 class VolcanoTray: public Node {
     private:
+        const int shakePin = 1;
+        const int lightPin = 2;
     public:
         void shake(int seconds);
         void shakeOn();
